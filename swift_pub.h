@@ -455,6 +455,10 @@ void sp_interface_output_append_token(SpInterfaceOutput *output, SpLexToken *tok
 
 void sp_interface_output_append(SpInterfaceOutput *dst, SpInterfaceOutput *src, int nested_level)
 {
+	if (src->size <= 0) {
+		return;
+	}
+
 	size_t required_size = dst->size + src->size + 1;
 	if (required_size >= dst->capacity) {
 		sp_interface_output_increase_capacity(dst, required_size);
@@ -523,17 +527,11 @@ int sp_interface_calculate_public(SpInputBuf *buf, SpInterfaceOutput *output)
 	SpInterfaceKind kind = SP_INTERFACE_KIND_UNKNOWN;
 	SpInterfaceVisibility visibility = SP_INTERFACE_VISIBILITY_INTERNAL;
 	int nested_level = 0;
-	int has_more = 1;
 
-	while (has_more) {
-		res = sp_lex_next_token(buf, &tok);
-		if (res != 0) {
-			return res;
-		}
-
+	while ((res = sp_lex_next_token(buf, &tok)) == 0) {
 		switch (tok.kind) {
 		case SP_TOK_KIND_EOF:
-			has_more = 0;
+			goto finalize;
 		case SP_TOK_KIND_CLASS:
 		case SP_TOK_KIND_STRUCT:
 		case SP_TOK_KIND_ACTOR:
@@ -606,9 +604,11 @@ int sp_interface_calculate_public(SpInputBuf *buf, SpInterfaceOutput *output)
 		sp_interface_output_append_token(&interface_chunk, &tok);
 	}
 
+	finalize:
+
 	sp_interface_output_append(output, &interface_chunk, nested_level);
 	sp_interface_output_close(output);
-	return 0;
+	return res;
 }
 
 #endif
