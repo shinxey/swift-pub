@@ -1,0 +1,7 @@
+public class TestClass {
+    public class NestedClass {
+        public init ( )
+        public func func2 ( )
+        
+    }
+} 

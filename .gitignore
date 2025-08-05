@@ -1,0 +1,9 @@
+interface_tests/diffs
+interface_tests/outputs
+interface_tests/test_interface
+
+lexer_tests/diffs
+lexer_tests/outputs
+lexer_tests/test_lexer
+
+examples/swift-pub
